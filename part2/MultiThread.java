@@ -5,6 +5,7 @@ public class MultiThread extends Thread
 {
     private Socket socket = null;
     private String CSPreturnMsg;
+    private boolean termination = false;
 
     public MultiThread(Socket socket)
     {
@@ -17,12 +18,13 @@ public class MultiThread extends Thread
         if(!CSPValidation[CSPValidation.length-1].equals("\\n") ||
                 CSPValidation.length != 6 ||
                 !CSPValidation[0].equals("s")||
-                !CSPValidation[1].equals("rtt")||
+                (!CSPValidation[1].equals("rtt") && !CSPValidation[1].equals("tput"))||
                 !isInt(CSPValidation[2])||
                 !isInt(CSPValidation[3])||
                 !isInt(CSPValidation[4])
         ){
             CSPreturnMsg = "404 Error";
+            termination = true;
         }else{
             CSPreturnMsg = "200 OK: Ready";
         }
@@ -57,10 +59,10 @@ public class MultiThread extends Thread
                 System.out.println("----Client sents "+inputLine+" ----");
                 CSPMsgCheck(inputLine);
                 out.println(CSPreturnMsg);
-                if(){
-                    mp()
+                if(!termination){
+                    inputLine = in.readLine();
+                    System.out.println(inputLine);
                 }
-
             }
             in.close();
             out.close();

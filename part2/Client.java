@@ -3,12 +3,13 @@ import java.io.*;
 
 public class Client
 {
+    public static String wp =" ";
     public static void Send_CSP(){
 
     }
-    public static void Send_MP(int PROBE_SEQUENCE_NUMBER, int MESSAGE_SIZE, PrintStream ps){
+    public static void Send_MP(String PROBE_SEQUENCE_NUMBER, String MESSAGE_SIZE, PrintStream ps){
 	    String ws=" ";
-	    String MP_MSG = "s"+ws+String.valueOf(PROBE_SEQUENCE_NUMBER)+ws+String.valueOf(MESSAGE_SIZE)+ws+"\\n";
+	    String MP_MSG = "s"+ws+PROBE_SEQUENCE_NUMBER+ws+MESSAGE_SIZE+ws+"\\n";
 	}
     public static void main(String[] args) throws IOException
     {
@@ -33,7 +34,17 @@ public class Client
             String cspmsg = cspInput.readLine();
             System.out.println("client send new msg "+cspmsg);
             out.println(cspmsg);
-            System.out.println("The server sends back the message: " + in.readLine());
+            String SReturnCSPMSG = in.readLine();
+            System.out.println("The server sends back the message: " + SReturnCSPMSG);
+//            System.out.println("output byte array");
+            if(SReturnCSPMSG.equals("200 OK: Ready")){
+                String[] CSPParams = cspmsg.split("\\s+");
+                String PROBE_SEQUENCE_NUMBER = CSPParams[2];
+                String MESSAGE_SIZE = CSPParams[3];
+                String MPMSG = "m"+wp+PROBE_SEQUENCE_NUMBER+wp+MESSAGE_SIZE;
+                System.out.println("client send mpmsg "+MPMSG);
+                out.println(MPMSG);
+            }
 
             // Shutdown stream
 //            stdIn.close();
