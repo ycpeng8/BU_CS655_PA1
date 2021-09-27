@@ -5,6 +5,7 @@ public class MultiThread extends Thread
 {
     private Socket socket = null;
     private String CSPreturnMsg;
+
     private boolean termination = false;
 
     public MultiThread(Socket socket)
@@ -12,8 +13,10 @@ public class MultiThread extends Thread
         super("MultiThread");
         this.socket = socket;
     }
+    public void MPMSGCheck(String  MPmsg){
 
-    public void CSPMsgCheck(String cspmsg){
+    }
+    public void CSPMsgCheck(String cspmsg, PrintStream out){
         String[] CSPValidation = cspmsg.split("\\s+");
         if(!CSPValidation[CSPValidation.length-1].equals("\\n") ||
                 CSPValidation.length != 6 ||
@@ -24,9 +27,10 @@ public class MultiThread extends Thread
                 !isInt(CSPValidation[4])
         ){
             CSPreturnMsg = "404 Error";
-            termination = true;
+            out.println(CSPreturnMsg);
         }else{
             CSPreturnMsg = "200 OK: Ready";
+            out.println(CSPreturnMsg);
         }
     }
 
@@ -45,25 +49,27 @@ public class MultiThread extends Thread
     {
         try
         {
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            PrintStream out = new PrintStream(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String inputLine = null;
+            String inputLine, outputLine;
+//            inputLine = in.readLine();
+
             while((inputLine = in.readLine()) != null)
             {
+//                System.out.println("Receive a message from the client: " + inputLine);
+//                outputLine = inputLine;
+//                out.println(outputLine);
+//                System.out.println("---------- The same message is sent back ----------");
                 System.out.println("----Client sents "+inputLine+" ----");
-                CSPMsgCheck(inputLine);
-<<<<<<< HEAD
-                out.writeBytes(CSPreturnMsg + '\n');
-                out.flush();
-=======
-                out.println(CSPreturnMsg);
-                if(!termination){
-                    inputLine = in.readLine();
-                    System.out.println(inputLine);
-                }
->>>>>>> f12da4362b932b2ddf6550bd90d62ff2089b1e35
-            }
+                CSPMsgCheck(inputLine,out);
 
+//                System.out.println("test");
+//                if(!termination){
+//                    inputLine = in.readLine();
+//                    System.out.println("test");
+//                    System.out.println(inputLine);
+//                }
+            }
             in.close();
             out.close();
             socket.close();
