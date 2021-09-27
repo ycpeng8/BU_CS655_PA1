@@ -36,9 +36,20 @@ public class Client
             System.out.print("Please enter the expected server delay(seconds): ");
             int sDelay = Integer.valueOf(stdIn.readLine());
 
-            if(CSP(mSize, noProbe, mType, sDelay, out, in))
+            if (CSP(mSize, noProbe, mType, sDelay, out, in))
             {
-                System.out.println("next...");
+                long RTT = MP(mSize, noProbe, sDelay, out, in);
+                if (RTT != 0)
+                {
+                    if (mType.equals("rtt"))
+                    {
+                        System.out.println("The RTT of the test: " + Long.valueOf(RTT) + "ms");
+                    }
+                    else
+                    {
+
+                    }
+                }
             }
             
             stdIn.close();
@@ -84,6 +95,58 @@ public class Client
         finally
         {
             return false;
+        }
+    }
+
+    // Measurement Phase (return RTT(ms))
+    public static long MP(int mSize, int noProbe, int sDelay,
+                            DataOutputStream out, BufferedReader in)
+    {
+        try
+        {
+            long[] timeRecord = new long[noProbe];
+            for (int i = 0; i < noProbe; i++)
+            {
+                String MPmessage = "m " + Integer.toString(i + 1) + " ";
+                for (int j = 0; j < mSize; j++)
+                {
+                    MPmessage += "1";
+                }
+                System.out.println("MP(send" + Integer.toString(i + 1) + "/" 
+                                    + Integer.toString(noProbe) + ": " + MPmessage);
+                long startTime = System.currentTimeMillis();
+                out.writeBytes(MPmessage + '\n');
+                out.flush();
+                String inputLine = in.readLine();
+                long endTime = System.currentTimeMillis();
+                System.out.println("MP(receive" + Integer.toString(i + 1) + "/"
+                                    + Integer.toString(noProbe) + ": " + inputLine);
+                if (inputLine.equals(MPmessage))
+                {
+                    timeRecord[i] = endTime - startTime;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+            long RTT = 0;
+            for (int i = 0; i < noProbe; i++)
+            {
+                RTT += timeRecord[i];
+            }
+            RTT /= noProbe;
+
+            return RTT;
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            return 0;
         }
     }
 }
