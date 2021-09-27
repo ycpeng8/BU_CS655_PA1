@@ -5,28 +5,48 @@ public class MultiThread extends Thread
 {
     private Socket socket = null;
     private String CSPreturnMsg;
-    private boolean termination = false;
+    private String MPreturnMsg;
+    private int SEQ_PROBE_NUMBER=1;
+    private int PROBE_NUMBER;
+    private int MEG_SIZE;
 
     public MultiThread(Socket socket)
     {
         super("MultiThread");
         this.socket = socket;
     }
+    public void terminationPhase(DataOutputStream out) throws IOException {
+        out.writeBytes("404 Error" + '\n');
+        out.flush();
+    }
+    public void MPMsgCheck(String[] mpmsg ,DataOutputStream out) throws IOException{
+        if(!mpmsg[0].equals("m") || (SEQ_PROBE_NUMBER<=PROBE_NUMBER && !isInt(mpmsg[1]) && Integer.parseInt(mpmsg[1]) != SEQ_PROBE_NUMBER)|| mpmsg.length == MEG_SIZE){
+            terminationPhase(out);
+        }else{
+            MPreturnMsg = mpmsg[0]+" "+SEQ_PROBE_NUMBER+" "+mpmsg[2];
+            out.writeBytes(MPreturnMsg+"\n");
+            out.flush();
+            SEQ_PROBE_NUMBER++;
 
-    public void CSPMsgCheck(String cspmsg){
-        String[] CSPValidation = cspmsg.split("\\s+");
-        if(!CSPValidation[CSPValidation.length-1].equals("\\n") ||
-                CSPValidation.length != 6 ||
-                !CSPValidation[0].equals("s")||
+        }
+    }
+    public void CSPMsgCheck(String[] cspmsg,DataOutputStream out) throws IOException {
+        String[] CSPValidation = cspmsg;
+        if(     CSPValidation.length != 5 ||
                 (!CSPValidation[1].equals("rtt") && !CSPValidation[1].equals("tput"))||
                 !isInt(CSPValidation[2])||
                 !isInt(CSPValidation[3])||
                 !isInt(CSPValidation[4])
         ){
             CSPreturnMsg = "404 Error";
-            termination = true;
+            out.writeBytes(CSPreturnMsg + '\n');
+            out.flush();
         }else{
             CSPreturnMsg = "200 OK: Ready";
+            PROBE_NUMBER = Integer.parseInt(CSPValidation[2]);
+            MEG_SIZE = Integer.parseInt(CSPValidation[3]);
+            out.writeBytes(CSPreturnMsg + '\n');
+            out.flush();
         }
     }
 
@@ -50,10 +70,16 @@ public class MultiThread extends Thread
             String inputLine = null;
             while((inputLine = in.readLine()) != null)
             {
+                String[] inputMSG = inputLine.split("\\s+");
                 System.out.println("----Client sents "+inputLine+" ----");
-                CSPMsgCheck(inputLine);
-                out.writeBytes(CSPreturnMsg + '\n');
-                out.flush();
+                String PhaseIndicator = inputMSG[0];
+                if(PhaseIndicator.equals("s")){
+                    CSPMsgCheck(inputMSG,out);
+                }else if(PhaseIndicator.equals("m")){
+                    MPMsgCheck(inputMSG,out);
+                }else{
+                    terminationPhase(out);
+                }
             }
 
             in.close();
