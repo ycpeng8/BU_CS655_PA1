@@ -52,16 +52,8 @@ public class MultiThread extends Thread
             {
                 System.out.println("----Client sents "+inputLine+" ----");
                 CSPMsgCheck(inputLine);
-<<<<<<< HEAD
                 out.writeBytes(CSPreturnMsg + '\n');
                 out.flush();
-=======
-                out.println(CSPreturnMsg);
-                if(!termination){
-                    inputLine = in.readLine();
-                    System.out.println(inputLine);
-                }
->>>>>>> f12da4362b932b2ddf6550bd90d62ff2089b1e35
             }
 
             in.close();
