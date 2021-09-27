@@ -22,35 +22,25 @@ public class Client
             // Establish socket
             Socket socket = new Socket(hostName, portNumber);
             System.out.println("---------- Connect successfully with the server "+ hostName + ": " + portNumber + " ----------");
-            OutputStream out = socket.getOutputStream();
-            InputStream in = socket.getInputStream();
-            byte[] buf = new byte[1024];
-            int readLen = 0;
-//            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-//            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintStream out = new PrintStream(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
             System.out.println("input csp message");
             BufferedReader cspInput = new BufferedReader(new InputStreamReader(System.in));
             String cspmsg = cspInput.readLine();
-            out.write(cspmsg.getBytes());
-            socket.shutdownOutput();
-
-            System.out.println("second msg");
-            BufferedReader r2 = new BufferedReader(new InputStreamReader(System.in));
-            String m2 = r2.readLine();
-            out.write(m2.getBytes());
-//            System.out.println("client send new msg "+cspmsg);
-//            out.println(cspmsg);
-//            String SReturnCSPMSG = in.readLine();
-//            System.out.println("The server sends back the message: " + SReturnCSPMSG);
+            System.out.println("client send new msg "+cspmsg);
+            out.println(cspmsg);
+            String SReturnCSPMSG = in.readLine();
+            System.out.println("The server sends back the message: " + SReturnCSPMSG);
 //            System.out.println("output byte array");
-//            if(SReturnCSPMSG.equals("200 OK: Ready")){
-//                String[] CSPParams = cspmsg.split("\\s+");
-//                String PROBE_SEQUENCE_NUMBER = CSPParams[2];
-//                String MESSAGE_SIZE = CSPParams[3];
-//                String MPMSG = "m"+wp+PROBE_SEQUENCE_NUMBER+wp+MESSAGE_SIZE;
-//                System.out.println("client send mpmsg "+MPMSG);
-////                out.println(MPMSG);
-//            }
+            if(SReturnCSPMSG.equals("200 OK: Ready")){
+                String[] CSPParams = cspmsg.split("\\s+");
+                String PROBE_SEQUENCE_NUMBER = CSPParams[2];
+                String MESSAGE_SIZE = CSPParams[3];
+                String MPMSG = "m"+wp+PROBE_SEQUENCE_NUMBER+wp+MESSAGE_SIZE;
+                System.out.println("client send mpmsg "+MPMSG);
+//                out.println(MPMSG);
+            }
 
             // Shutdown stream
 //            stdIn.close();
