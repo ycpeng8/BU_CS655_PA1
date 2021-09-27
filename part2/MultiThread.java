@@ -43,25 +43,17 @@ public class MultiThread extends Thread
     {
         try
         {
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String inputLine, outputLine;
-//            inputLine = in.readLine();
-
+            String inputLine = null;
             while((inputLine = in.readLine()) != null)
             {
-//                System.out.println("Receive a message from the client: " + inputLine);
-//                outputLine = inputLine;
-//                out.println(outputLine);
-//                System.out.println("---------- The same message is sent back ----------");
                 System.out.println("----Client sents "+inputLine+" ----");
                 CSPMsgCheck(inputLine);
-                out.println(CSPreturnMsg);
-                if(){
-                    mp()
-                }
-
+                out.writeBytes(CSPreturnMsg + '\n');
+                out.flush();
             }
+
             in.close();
             out.close();
             socket.close();
