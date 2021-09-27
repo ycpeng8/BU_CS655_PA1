@@ -4,7 +4,7 @@ import java.io.*;
 public class Client
 {
     public static String wp =" ";
-    public static void Send_CSP(){
+    public static void send_CSP(){
 
     }
     public static void Send_MP(String PROBE_SEQUENCE_NUMBER, String MESSAGE_SIZE, PrintStream ps){
@@ -24,19 +24,24 @@ public class Client
             System.out.println("---------- Connect successfully with the server "+ hostName + ": " + portNumber + " ----------");
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String inputLine = null;
-            int i = 0;
-            while(i < 3)
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+
+            // Set the configuraiton of the test
+            System.out.print("Please enter the size(bytes) of every message sent: ");
+            int mSize = Integer.valueOf(stdIn.readLine());
+            System.out.print("Please enter the number of probe messages sent: ");
+            int noProbe = Integer.valueOf(stdIn.readLine());
+            System.out.print("Please enter the measure type(rtt or tput): ");
+            String mType = stdIn.readLine();
+            System.out.print("Please enter the expected server delay(seconds): ");
+            int sDelay = Integer.valueOf(stdIn.readLine());
+
+            if(CSP(mSize, noProbe, mType, sDelay, out, in))
             {
-                String cspmsg = "s rtt 2 2 2";
-                System.out.println("client send new msg: "+cspmsg);
-                out.writeBytes(cspmsg + '\n');
-                out.flush();
-                inputLine = in.readLine();
-                System.out.println("The server sends back the message: " + inputLine);
-                i++;
+                System.out.println("next...");
             }
             
+            stdIn.close();
             in.close();
             out.close();
         }
@@ -47,6 +52,38 @@ public class Client
         finally
         {
             System.out.println("---------- Client closes ----------");
+        }
+    }
+
+    // Connection Setup Phase
+    public static boolean CSP(int mSize, int noProbe, String mType, int sDelay, 
+                        DataOutputStream out, BufferedReader in)
+    {
+        try
+        {
+            String CSPmessage = "s " + mType + " " + Integer.toString(noProbe) + " "
+                                + Integer.toString(mSize) + " " + Integer.toString(sDelay);
+            System.out.println("CSP(send): " + CSPmessage);
+            out.writeBytes(CSPmessage + '\n');
+            out.flush();
+            String inputLine = in.readLine();
+            System.out.println("CSP(receive): " + inputLine);
+            if(inputLine.equals("200 OK: Ready"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            return false;
         }
     }
 }
