@@ -22,9 +22,11 @@ public class MultiThread extends Thread
     public void CTPMsgCheck(String[] CTPmsg, DataOutputStream out ) throws IOException {
         if(CTPmsg.length != 1){
             out.writeBytes("404 Error: Invalid Connection Termination Message" + '\n');
+            out.flush();
 
         }else{
             out.writeBytes("200 OK: Closing Connection" + '\n');
+            out.flush();
 
         }
         terminate = true;
@@ -32,6 +34,7 @@ public class MultiThread extends Thread
     }
     public void terminate(DataOutputStream out) throws IOException {
         out.writeBytes("404 Error" + '\n');
+        out.flush();
         terminate = true;
         Con_Close = "---------- Server closes ----------";
 
