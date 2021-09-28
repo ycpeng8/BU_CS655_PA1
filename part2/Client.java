@@ -39,7 +39,7 @@ public class Client
             // Debug Data
             int mSize = 10;
             int noProbe = 10;
-            String mType = "rtt";
+            String mType = "tput";
             int sDelay = 0;
 
             if (CSP(mSize, noProbe, mType, sDelay, out, in))
@@ -49,12 +49,14 @@ public class Client
                 {
                     if (mType.equals("rtt"))
                     {
-                        System.out.println("The RTT of the test: " + Long.valueOf(RTT) + "ms");
+                        System.out.println("The RTT of the test: " + Long.valueOf(RTT) + " ms");
                     }
                     else
                     {
-
+                        long tPut = Double.valueOf(mSize / (RTT * 0.001)).longValue();
+                        System.out.println("The Throughput of the test: " + Long.valueOf(tPut) + " bp/s");
                     }
+                    CTP(out, in);
                 }
             }
             
@@ -150,6 +152,24 @@ public class Client
         }
         
         return 0;
+    }
+
+    // Connection Termination Phase
+    public static void CTP(DataOutputStream out, BufferedReader in)
+    {
+        try
+        {
+            String CTPmessage = "t";
+            System.out.println("CTP(send): " + CTPmessage);
+            out.writeBytes(CTPmessage + '\n');
+            out.flush();
+            String inputLine = in.readLine();
+            System.out.println("CTP(receive): " + inputLine);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 }
