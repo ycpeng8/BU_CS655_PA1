@@ -27,14 +27,20 @@ public class Client
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
             // Set the configuraiton of the test
-            System.out.print("Please enter the size(bytes) of every message sent: ");
-            int mSize = Integer.valueOf(stdIn.readLine());
-            System.out.print("Please enter the number of probe messages sent: ");
-            int noProbe = Integer.valueOf(stdIn.readLine());
-            System.out.print("Please enter the measure type(rtt or tput): ");
-            String mType = stdIn.readLine();
-            System.out.print("Please enter the expected server delay(seconds): ");
-            int sDelay = Integer.valueOf(stdIn.readLine());
+            // System.out.print("Please enter the size(bytes) of every message sent: ");
+            // int mSize = Integer.valueOf(stdIn.readLine());
+            // System.out.print("Please enter the number of probe messages sent: ");
+            // int noProbe = Integer.valueOf(stdIn.readLine());
+            // System.out.print("Please enter the measure type(rtt or tput): ");
+            // String mType = stdIn.readLine();
+            // System.out.print("Please enter the expected server delay(seconds): ");
+            // int sDelay = Integer.valueOf(stdIn.readLine());
+
+            // Debug Data
+            int mSize = 10;
+            int noProbe = 10;
+            String mType = "rtt";
+            int sDelay = 0;
 
             if (CSP(mSize, noProbe, mType, sDelay, out, in))
             {
@@ -92,10 +98,8 @@ public class Client
         {
             e.printStackTrace();
         }
-        finally
-        {
-            return false;
-        }
+
+        return false;
     }
 
     // Measurement Phase (return RTT(ms))
@@ -112,15 +116,15 @@ public class Client
                 {
                     MPmessage += "1";
                 }
-                System.out.println("MP(send" + Integer.toString(i + 1) + "/" 
-                                    + Integer.toString(noProbe) + ": " + MPmessage);
+                System.out.println("MP(send " + Integer.toString(i + 1) + "/" 
+                                    + Integer.toString(noProbe) + "): " + MPmessage);
                 long startTime = System.currentTimeMillis();
                 out.writeBytes(MPmessage + '\n');
                 out.flush();
                 String inputLine = in.readLine();
                 long endTime = System.currentTimeMillis();
-                System.out.println("MP(receive" + Integer.toString(i + 1) + "/"
-                                    + Integer.toString(noProbe) + ": " + inputLine);
+                System.out.println("MP(receive " + Integer.toString(i + 1) + "/"
+                                    + Integer.toString(noProbe) + "): " + inputLine);
                 if (inputLine.equals(MPmessage))
                 {
                     timeRecord[i] = endTime - startTime;
@@ -144,9 +148,8 @@ public class Client
         {
             e.printStackTrace();
         }
-        finally
-        {
-            return 0;
-        }
+        
+        return 0;
     }
+
 }
