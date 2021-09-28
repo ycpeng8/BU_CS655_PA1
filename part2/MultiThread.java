@@ -11,6 +11,8 @@ public class MultiThread extends Thread
     private int MEG_SIZE;
     private boolean CSP = true;
     private boolean MP = true;
+    private boolean terminate = false;
+    private String Con_Close = "---------- One client closes ----------";
 
     public MultiThread(Socket socket)
     {
@@ -20,18 +22,20 @@ public class MultiThread extends Thread
     public void CTPMsgCheck(String[] CTPmsg, DataOutputStream out ) throws IOException {
         if(CTPmsg.length != 1){
             out.writeBytes("404 Error: Invalid Connection Termination Message" + '\n');
-            out.flush();
-            socket.close();
+
         }else{
             out.writeBytes("200 OK: Closing Connection" + '\n');
-            out.flush();
-            socket.close();
+
         }
+        terminate = true;
+//        Con_Close = "---------- Server closes ----------";
     }
     public void terminate(DataOutputStream out) throws IOException {
         out.writeBytes("404 Error" + '\n');
-        out.flush();
-        socket.close();
+        terminate = true;
+        Con_Close = "---------- Server closes ----------";
+
+
     }
     public void MPMsgCheck(String[] mpmsg ,DataOutputStream out) throws IOException{
         if(!mpmsg[0].equals("m") ||
@@ -55,9 +59,7 @@ public class MultiThread extends Thread
                 !isInt(CSPValidation[4])
         ){
             terminate(out);
-//            CSPreturnMsg = "404 Error";
-//            out.writeBytes(CSPreturnMsg + '\n');
-//            out.flush();
+
         }else{
             CSPreturnMsg = "200 OK: Ready";
             PROBE_NUMBER = Integer.parseInt(CSPValidation[2]);
@@ -85,7 +87,7 @@ public class MultiThread extends Thread
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String inputLine = null;
-            while((inputLine = in.readLine()) != null)
+            while((inputLine = in.readLine()) != null && !terminate)
             {
                 String[] inputMSG = inputLine.split("\\s+");
                 System.out.println("----Client sents "+inputLine+" ----");
@@ -110,7 +112,7 @@ public class MultiThread extends Thread
         }
         finally
         {
-            System.out.println("---------- One client closes ----------");
+            System.out.println(Con_Close);
         }
     }
 }
