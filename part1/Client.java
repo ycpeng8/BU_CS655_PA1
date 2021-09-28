@@ -19,6 +19,7 @@ public class Client
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
             // User write, send and receive messages
+            System.out.print("Please text the message you want to send: ");
             String userInput = stdIn.readLine();
             out.println(userInput);
             System.out.println("The server sends back the message: " + in.readLine());

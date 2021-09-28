@@ -15,13 +15,15 @@ public class MultiThread extends Thread
     {
         try
         {
+            // Establish input and output streams
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String inputLine, outputLine;
-            while((inputLine = in.readLine()) != null)
+            while((inputLine = in.readLine()) != null)  // Receive the message from client
             {
                 System.out.println("Receive a message from the client: " + inputLine);
                 outputLine = inputLine;
+                // Send the message to client
                 out.println(outputLine);
                 System.out.println("---------- The same message is sent back ----------");
             }
