@@ -12,6 +12,7 @@ public class MultiThread extends Thread
     private boolean CSP = true;
     private boolean MP = true;
     private boolean terminate = false;
+    private long ServerDelay = 0;
     private String Con_Close = "---------- One client closes ----------";
 
     public MultiThread(Socket socket)
@@ -19,6 +20,7 @@ public class MultiThread extends Thread
         super("MultiThread");
         this.socket = socket;
     }
+    // Validate CTP message
     public void CTPMsgCheck(String[] CTPmsg, DataOutputStream out ) throws IOException {
         if(CTPmsg.length != 1){
             out.writeBytes("404 Error: Invalid Connection Termination Message" + '\n');
@@ -30,8 +32,9 @@ public class MultiThread extends Thread
 
         }
         terminate = true;
-//        Con_Close = "---------- Server closes ----------";
+
     }
+    // if client sends invalid message, Server will terminate the connection
     public void terminate(DataOutputStream out) throws IOException {
         out.writeBytes("404 Error" + '\n');
         out.flush();
@@ -40,12 +43,15 @@ public class MultiThread extends Thread
 
 
     }
-    public void MPMsgCheck(String[] mpmsg ,DataOutputStream out) throws IOException{
+    // Validate MP message
+    public void MPMsgCheck(String[] mpmsg ,DataOutputStream out) throws IOException, InterruptedException{
         if(!mpmsg[0].equals("m") ||
                 (SEQ_PROBE_NUMBER<=PROBE_NUMBER && !isInt(mpmsg[1]) && Integer.parseInt(mpmsg[1]) != SEQ_PROBE_NUMBER)
                 || mpmsg.length == MEG_SIZE){
             terminate(out);
         }else{
+            // if MP message is valid, then server will echo back the message to client
+            sleep(ServerDelay);
             MPreturnMsg = mpmsg[0]+" "+SEQ_PROBE_NUMBER+" "+mpmsg[2];
             out.writeBytes(MPreturnMsg+"\n");
             out.flush();
@@ -53,6 +59,7 @@ public class MultiThread extends Thread
 
         }
     }
+    // Validate CSP message
     public void CSPMsgCheck(String[] cspmsg,DataOutputStream out) throws IOException {
         String[] CSPValidation = cspmsg;
         if(     !CSP || CSPValidation.length != 5 ||
@@ -61,9 +68,12 @@ public class MultiThread extends Thread
                 !isInt(CSPValidation[3])||
                 !isInt(CSPValidation[4])
         ){
+            // if csp message is invalid, Server terminates the connection
             terminate(out);
 
         }else{
+            // if CSP message is valid, then server will send back a message to client and set probe parameter
+            ServerDelay = Long.parseLong(cspmsg[4]);
             CSPreturnMsg = "200 OK: Ready";
             PROBE_NUMBER = Integer.parseInt(CSPValidation[2]);
             MEG_SIZE = Integer.parseInt(CSPValidation[3]);
@@ -71,7 +81,7 @@ public class MultiThread extends Thread
             out.flush();
         }
     }
-
+    // check if the string can be converted to integer
     public boolean isInt(String s){
         try{
             Integer.parseInt(s);
@@ -82,7 +92,7 @@ public class MultiThread extends Thread
         }
         return true;
     }
-
+    // Server will keep reading message from client and decide which phase will be executed
     public void run()
     {
         try
@@ -95,6 +105,7 @@ public class MultiThread extends Thread
                 String[] inputMSG = inputLine.split("\\s+");
                 System.out.println("----Client sents "+inputLine+" ----");
                 String PhaseIndicator = inputMSG[0];
+                // Check the phase indicator
                 if(PhaseIndicator.equals("s")){
                     CSPMsgCheck(inputMSG,out);
                 }else if(PhaseIndicator.equals("m")){

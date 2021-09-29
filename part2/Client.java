@@ -4,13 +4,7 @@ import java.io.*;
 public class Client
 {
     public static String wp =" ";
-    public static void send_CSP(){
 
-    }
-    public static void Send_MP(String PROBE_SEQUENCE_NUMBER, String MESSAGE_SIZE, PrintStream ps){
-	    String ws=" ";
-	    String MP_MSG = "s"+ws+PROBE_SEQUENCE_NUMBER+ws+MESSAGE_SIZE+ws+"\\n";
-	}
     public static void main(String[] args) throws IOException
     {
         // Get hostname and portnumber from command line
@@ -26,27 +20,23 @@ public class Client
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
-            // Set the configuraiton of the test
-            // System.out.print("Please enter the size(bytes) of every message sent: ");
-            // int mSize = Integer.valueOf(stdIn.readLine());
-            // System.out.print("Please enter the number of probe messages sent: ");
-            // int noProbe = Integer.valueOf(stdIn.readLine());
-            // System.out.print("Please enter the measure type(rtt or tput): ");
-            // String mType = stdIn.readLine();
-            // System.out.print("Please enter the expected server delay(seconds): ");
-            // int sDelay = Integer.valueOf(stdIn.readLine());
+//             Set the configuraiton of the test
+             System.out.print("Please enter the size(bytes) of every message sent: ");
+             int mSize = Integer.valueOf(stdIn.readLine());
+             System.out.print("Please enter the number of probe messages sent: ");
+             int noProbe = Integer.valueOf(stdIn.readLine());
+             System.out.print("Please enter the measure type(rtt or tput): ");
+             String mType = stdIn.readLine();
+             System.out.print("Please enter the expected server delay(ms): ");
+             int sDelay = Integer.valueOf(stdIn.readLine());
 
-            // Debug Data
-            int mSize = 10;
-            int noProbe = 10;
-            String mType = "tput";
-            int sDelay = 0;
+
 
             if (CSP(mSize, noProbe, mType, sDelay, out, in))
             {
                 long RTT = MP(mSize, noProbe, sDelay, out, in);
                 if (RTT != 0)
-                {
+                {   // Set rtt mode or tput mode
                     if (mType.equals("rtt"))
                     {
                         System.out.println("The RTT of the test: " + Long.valueOf(RTT) + " ms");
